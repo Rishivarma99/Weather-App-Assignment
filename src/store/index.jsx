@@ -10,58 +10,152 @@ const Localcontext = ({ children }) => {
   const [presentWeather, setPresentWeather] = useState(null);
   const [weatherForecast, setWeatherForecast] = useState(null);
   const [search, setSearch] = useState("");
+  const [favoriteCities, setFavoriteCities] = useState([]);
+  const [favErrorMsg, setFavErrorMsg] = useState(null);
+  const [favFetching, setFavFetching] = useState(false);
+  // to implement local storage
+  const [latestSearches, setlatestSearches] = useState([]);
+
+  const handleLatestSearches = (searchValue) => {
+    console.log("handle latest searches invoked");
+    let NewLatestSearches = [...latestSearches, searchValue];
+    if (NewLatestSearches.length > 3) {
+      // NewLatestSearches = NewLatestSearches.splice(0, 1);
+      NewLatestSearches.shift();
+    }
+    localStorage.setItem("searches", JSON.stringify(NewLatestSearches));
+    setlatestSearches(NewLatestSearches);
+  };
+
+  useEffect(() => {
+    const storedSearches = localStorage.getItem("searches");
+    if (storedSearches) {
+      setlatestSearches(JSON.parse(storedSearches));
+    }
+  }, []);
+  // to get weather in search
+  console.log(latestSearches);
+
+  const handleGetWeather = (cityName) => {
+    console.log(cityName);
+    if (cityName == "") {
+      alert("Please Enter something");
+    }
+    if (cityName && cityName != "") {
+      handleLatestSearches(cityName);
+      fetchData(cityName);
+      setSearch("");
+    }
+  };
 
   async function fetchData(param) {
     // fetch the data  :
-    const API_KEY = "0ce42cb8cd2e08940db0b75a2d3935d6";
+    const API_KEY = "bd5e378503939ddaee76f12ad7a97608";
     // const response = await fetch(url);
     try {
       setFetching(true);
       const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/forecast/daily?q=${param}&appid=bd5e378503939ddaee76f12ad7a97608&cnt=6`
+        `https://api.openweathermap.org/data/2.5/forecast/daily?q=${param}&appid=${API_KEY}&cnt=6`
       );
-      console.log(response);
+      // console.log(response);
       const data = await response.json();
-      if (data && data != "") {
-        console.log("data invoked");
-        console.log(data);
+      if (data) {
+        setFetching(true);
+        // console.log("data invoked");
+        // console.log(data);
         if (data.cod != "404") {
           setMyData(data);
           setPresentWeather(data.list[0]);
           setWeatherForecast(data.list);
           setFetching(false);
+          setErrorMsg(null);
         } else {
           setErrorMsg(data.message);
+          setFetching(false);
         }
       }
     } catch (e) {
-      console.log("errroinvlode");
-      console.log(e);
+      console.log("error invlode at fetching main data");
+      // console.log(e);
       setErrorMsg(e);
       setFetching(false);
     }
   }
-
   useEffect(() => {
     fetchData("vizianagaram");
   }, []);
-
-  console.log("errormsg" + errorMsg);
 
   const onclickNavbar = () => {
     console.log("nav bar clicked ");
     setOpenNav(!openNav);
   };
-  const handleGetWeather = () => {
-    console.log(search);
-    if (search == "") {
-      alert("Please Enter something");
+
+  const handleAddFavoriteCity = (cityName) => {
+    console.log(cityName);
+    addFavoriteCity(cityName);
+  };
+  const handleDeleteFavoriteCity = (cityId) => {
+    // console.log(cityId);
+    removeFavoriteCity(cityId);
+  };
+
+  useEffect(() => {
+    async function fetchMyData() {
+      const response = await fetch("http://localhost:5000/cities");
+      const data = await response.json();
+      if (data) {
+        // console.log("printing dat");
+        // console.log(data);
+        setFavoriteCities(data);
+      }
     }
-    if (search && search != "") {
-      fetchData(search);
+
+    fetchMyData();
+  }, []);
+
+  // ADING AND REMOVING FAVORITE CITY
+
+  const addFavoriteCity = async (city) => {
+    try {
+      const response = await fetch("http://localhost:5000/cities", {
+        method: "POST",
+        headers: { "Content-Type": "appilication/json" },
+        body: JSON.stringify({ city }),
+      });
+      if (!response.ok) {
+        throw new Error("error adding favorite city");
+      }
+      const data = await response.json();
+      if (data) {
+        // console.log(data);
+        setFavoriteCities([...favoriteCities, data]);
+      }
+    } catch (e) {
+      console.error("Error adding favorite city:", e);
     }
   };
 
+  const removeFavoriteCity = async (cityId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/cities/${cityId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("error REMOVING favorite city");
+      }
+      const data = await response.json();
+      if (data) {
+        // console.log(data);
+        setFavoriteCities(
+          favoriteCities.filter((cityName) => cityName.id !== cityId)
+        );
+      }
+    } catch (e) {
+      console.error("Error adding favorite city:", e);
+    }
+  };
+
+  // console.log(favoriteCities);
   return (
     <globalcontext.Provider
       value={{
@@ -75,6 +169,11 @@ const Localcontext = ({ children }) => {
         search,
         setSearch,
         handleGetWeather,
+        favoriteCities,
+        setFavoriteCities,
+        handleAddFavoriteCity,
+        handleDeleteFavoriteCity,
+        latestSearches,
       }}
     >
       {children}

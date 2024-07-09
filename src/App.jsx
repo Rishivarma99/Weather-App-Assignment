@@ -10,8 +10,8 @@ function App() {
     <>
       <Localcontext>
         <Navbar></Navbar>
-        <main className="bg-slate-400 pt-5 h-[100vh] ">
-          <div className="bg-slate-600 w-[96%] mt-20 p-2 mx-auto ">
+        <main className="bg-contain bg-center bg-no-repeat mybackground  min-h-[100vh] h-full pt-1  ">
+          <div className=" bg-[#265073] min-w-[380px] w-[96%] md:w-[800px] mt-5 p-2 mx-auto ">
             <Display></Display>
             <SearchCity></SearchCity>
             <FavoriteCities></FavoriteCities>

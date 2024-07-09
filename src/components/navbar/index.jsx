@@ -7,14 +7,16 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center w-full px-4 pt-2 h-[60px] bg-gray-500">
-        <div className="flex content-center space-x-1">
-          <TiWeatherPartlySunny className="text-2xl "></TiWeatherPartlySunny>
-          <p>AccurateWeather</p>
+      <div className="flex justify-between items-center w-full px-4 pt-2 h-[60px] bg-[#EEF5FF]">
+        <div className="flex content-center items-center space-x-2">
+          <TiWeatherPartlySunny className="text-3xl text-black   "></TiWeatherPartlySunny>
+          <p className="text-[18px] text-[#176B87] font-serif  font-semibold">
+            Accurate Weather
+          </p>
         </div>
         <TfiAlignLeft
           onClick={() => onclickNavbar()}
-          className="lg:hidden"
+          className="text-[#071952] text-2xl   lg:hidden"
         ></TfiAlignLeft>
         <ul
           className={`hidden list-none flex justify-center p-3 space-x-4 capitalize   

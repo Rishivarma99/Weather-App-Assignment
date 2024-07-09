@@ -1,3 +1,10 @@
-
+.mybackground { 
+ 
+  background: url(https://wallpapers.com/images/featured-full/weather-xqhs9axpy8btfd3y.jpg);
+  background-color: #eee;
+  background-position: 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 
 
